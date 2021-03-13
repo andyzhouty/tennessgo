@@ -19,6 +19,6 @@ func TestTranslate(t *testing.T) {
 		tr := NewTranslation("")
 		result, err := tr.Translate()
 		checkEquation(result, "", t)
-		checkEquation(err.Error(), "empty string", t)
+		checkEquation(err.Error(), "error: empty string to translate", t)
 	})
 }

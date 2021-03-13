@@ -95,7 +95,7 @@ type Translate struct {
 func (t Translate) Translate() (string, error) {
 	// TODO: 完成Translate
 	if t.sentenceToTranslate == "" {
-		return "", errors.New("empty string")
+		return "", errors.New("error: empty string to translate")
 	}
 	return t.sentenceToTranslate, nil
 }
