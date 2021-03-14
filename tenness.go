@@ -1,9 +1,15 @@
 package tennessgo
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
 
-// all reserved keywords in tennessgo
+// tennessgo中的所有保留关键字
 var reservedKeywords = []string{
+	"{", // 如果要翻译的句子中包含特殊格式，则把特殊格式转义
+
 	"了别", "了当", "了得", "了断",
 	"了无", "了愿", "了债", "了办",
 	"了事", "了然", "了却", "了结",
@@ -93,11 +99,49 @@ type Translate struct {
 }
 
 func (t Translate) Translate() (string, error) {
-	// TODO: 完成Translate
 	if t.sentenceToTranslate == "" {
-		return "", errors.New("error: empty string to translate")
+		return "", errors.New("empty string to translate")
 	}
-	return t.sentenceToTranslate, nil
+	result := t.sentenceToTranslate
+	for index := range reservedKeywords {
+		// 把所有出现在句子中的关键字替换为一种特定格式，使其不被翻译
+		// 稍后会把这些格式重新转换为关键字
+		result = strings.Replace(
+			result, reservedKeywords[index], fmt.Sprintf("{k@#%d}", index),
+			-1,
+		)
+	}
+
+	// 需要转换的关键字映射
+	// 键： 规范中文
+	// 值： 由不规范中文或常被打错的中文组成的切片
+	keywordsToTranslate := map[string][]string{
+		"什么": {"啥", "啥子", "肾么", "甚么"},
+		"怎么": {"咋"},
+		"炒饭": {"抄饭", "吵饭"},
+		"充气": {"冲气"},
+		"零售": {"另售"},
+		"装潢": {"装璜", "装黄"},
+		"盒饭": {"合饭"},
+		"菠萝": {"波萝"},
+		"鸡蛋": {"鸡但", "鸡旦"},
+		"停车": {"仃车"},
+	}
+	for key, values := range keywordsToTranslate {
+		for _, informal := range values {
+			result = strings.Replace(result, informal, key, -1)
+		}
+	}
+
+	for index := range reservedKeywords {
+		format := fmt.Sprintf("{k@#%d}", index)
+		result = strings.Replace(
+			result, format, reservedKeywords[index],
+			strings.Count(result, format)-strings.Count(t.sentenceToTranslate, format),
+		)
+	}
+
+	return result, nil
 }
 
 func NewTranslation(toTranslate string) Translate {
