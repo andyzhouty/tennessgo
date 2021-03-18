@@ -42,4 +42,9 @@ func TestTranslateSentence(t *testing.T) {
 		checkEquation(result, "{k@#219}发生甚么事了是什么意思", t)
 		checkEquation(err, nil, t)
 	})
+	t.Run("test one keyword is IN another one", func(t *testing.T) {
+		tr := NewTranslation("马可·波萝")
+		result, _ := tr.Translate()
+		checkEquation(result, "马可·波罗", t)
+	})
 }
