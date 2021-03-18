@@ -1,6 +1,9 @@
 package tennessgo
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func checkEquation(got, want interface{}, t *testing.T) {
 	if got != want {
@@ -47,4 +50,26 @@ func TestTranslateSentence(t *testing.T) {
 		result, _ := tr.Translate()
 		checkEquation(result, "马可·波罗", t)
 	})
+}
+
+func ExampleTranslate() {
+	tr := Translate{ToTranslate: "发生甚么事了是啥意思", ReservedKeywords: ReservedKeywords}
+	fmt.Println(tr.ToTranslate)
+	// output:
+	// 发生甚么事了是啥意思
+}
+
+func ExampleNewTranslation() {
+	tr := NewTranslation("")
+	fmt.Println(tr.ReservedKeywords[227])
+	// output:
+	// 耗子尾汁
+}
+
+func ExampleTranslate_Translate() {
+	tr := NewTranslation("发生甚么事了是啥意思")
+	result, err := tr.Translate()
+	fmt.Println(result, err)
+	// output:
+	// 发生甚么事了是什么意思 <nil>
 }

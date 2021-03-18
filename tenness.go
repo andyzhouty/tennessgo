@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// tennessgo中的所有保留关键字
-var reservedKeywords = []string{
+// ReservedKeywords包含了tennessgo中的所有保留关键字。
+var ReservedKeywords = []string{
 	"{", // 如果要翻译的句子中包含特殊格式，则把特殊格式转义
 
 	"了别", "了当", "了得", "了断",
@@ -93,21 +93,27 @@ var reservedKeywords = []string{
 	"橘里橘气", "紫气东来", "磕到了",
 }
 
+// Translate是一个翻译模型，有Translate()方法，用于翻译
+// 属性ToTranslate是要翻译的字符串
+// 属性ReservedKeywords则是可自定义的保留关键字列表，不过一般推荐使用自带的ReservedKeywords
 type Translate struct {
-	sentenceToTranslate string
-	reservedKeywords    []string
+	ToTranslate      string
+	ReservedKeywords []string
 }
 
+// Translate.Translate() 是可供调用的方法，其返回翻译后的结果和error
+// 如果t.ToTranslate为空，则会返回"empty string to translate"的错误，否则
+// 返回的error为nil
 func (t Translate) Translate() (string, error) {
-	if t.sentenceToTranslate == "" {
+	if t.ToTranslate == "" {
 		return "", errors.New("empty string to translate")
 	}
-	result := t.sentenceToTranslate
-	for index := range reservedKeywords {
+	result := t.ToTranslate
+	for index := range ReservedKeywords {
 		// 把所有出现在句子中的关键字替换为一种特定格式，使其不被翻译
 		// 稍后会把这些格式重新转换为关键字
 		result = strings.Replace(
-			result, reservedKeywords[index], fmt.Sprintf("{k@#%d}", index),
+			result, ReservedKeywords[index], fmt.Sprintf("{k@#%d}", index),
 			-1,
 		)
 	}
@@ -134,20 +140,22 @@ func (t Translate) Translate() (string, error) {
 		}
 	}
 
-	for index := range reservedKeywords {
+	for index := range ReservedKeywords {
 		format := fmt.Sprintf("{k@#%d}", index)
 		result = strings.Replace(
-			result, format, reservedKeywords[index],
-			strings.Count(result, format)-strings.Count(t.sentenceToTranslate, format),
+			result, format, ReservedKeywords[index],
+			strings.Count(result, format)-strings.Count(t.ToTranslate, format),
 		)
 	}
 
 	return result, nil
 }
 
+// NewTranslation 是我们推荐的用于构造一个Translate结构的函数
+// 其接受被翻译的句子，并返回一个Translate结构，这个结构具有我们在上面定义的ReservedKeywords
 func NewTranslation(toTranslate string) Translate {
 	return Translate{
-		sentenceToTranslate: toTranslate,
-		reservedKeywords:    reservedKeywords,
+		ToTranslate:      toTranslate,
+		ReservedKeywords: ReservedKeywords,
 	}
 }
