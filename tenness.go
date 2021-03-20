@@ -106,13 +106,18 @@ type Translate struct {
 // 如果t.ToTranslate为空，则会返回"empty string to translate"的错误，否则
 // 返回的error为nil
 func (t Translate) Translate() (string, error) {
-	if t.ToTranslate == "" {
+	if strings.TrimSpace(t.ToTranslate) == "" {
 		return "", errors.New("empty string to translate")
 	}
 
 	str_len := len(t.ToTranslate)
 	toTranslate := t.ToTranslate
-	// 过滤问号
+	punctuationRegex := regexp.MustCompile(`^(？|\?)$`)
+	if punctuationRegex.FindString(toTranslate) != "" {
+		return "", errors.New("translating a string only contains a question mark")
+	}
+
+	// 删除结尾问号
 	switch {
 	case strings.HasSuffix(toTranslate, "？"):
 		toTranslate = toTranslate[:str_len-len("？")]
@@ -120,18 +125,10 @@ func (t Translate) Translate() (string, error) {
 		toTranslate = toTranslate[:str_len-1]
 	}
 
-	if toTranslate == "" {
-		return "", errors.New("translating a string only contains a question mark")
-	}
-
 	// 不翻译...是什么/什么意思之类的问句
-	pattern := "(.*?是)(啥|什么)(玩意|东西|意思)?(儿|呢|呀|啊)?$"
-	reg := regexp.MustCompile(pattern)
-	if reg == nil {
-		fmt.Println("regexp err")
-		return "", errors.New("regexp err")
-	}
-	regResult := reg.FindStringSubmatch(toTranslate)
+	pattern := `(.*?是)(啥|什么)(玩意|东西|意思)?(儿|呢|呀|啊)?$`
+	regex := regexp.MustCompile(pattern)
+	regResult := regex.FindStringSubmatch(toTranslate)
 	if regResult != nil {
 		if regResult[3] != "意思" {
 			return regResult[1] + "什么", nil
