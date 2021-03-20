@@ -26,11 +26,11 @@ func TestTranslateWordOrEmpty(t *testing.T) {
 	})
 }
 
-func TestTranslateSentence(t *testing.T) {
+func TestTranslateDeclarativeSentence(t *testing.T) {
 	t.Run("without reserved keywords", func(t *testing.T) {
-		tr := NewTranslation("咋给轮胎冲气")
+		tr := NewTranslation("给轮胎冲气")
 		result, err := tr.Translate()
-		checkEquation(result, "怎么给轮胎充气", t)
+		checkEquation(result, "给轮胎充气", t)
 		checkEquation(err, nil, t)
 	})
 	t.Run("with reserved keywords", func(t *testing.T) {
@@ -45,10 +45,29 @@ func TestTranslateSentence(t *testing.T) {
 		checkEquation(result, "{k@#219}发生甚么事了是什么意思", t)
 		checkEquation(err, nil, t)
 	})
-	t.Run("test one keyword is IN another one", func(t *testing.T) {
-		tr := NewTranslation("马可·波萝")
-		result, _ := tr.Translate()
-		checkEquation(result, "马可·波罗", t)
+}
+
+func TestWhatQuestions(t *testing.T) {
+	t.Run("questions with question marks", func(t *testing.T) {
+		tr := NewTranslation("仃车是什么意思？")
+		tr2 := NewTranslation("仃车是什么意思?")
+		result, err := tr.Translate()
+		result2, _ := tr2.Translate()
+		checkEquation(result, "仃车是什么意思", t)
+		checkEquation(result2, "仃车是什么意思", t)
+		checkEquation(err, nil, t)
+	})
+	t.Run("asking what-meaning questions", func(t *testing.T) {
+		tr := NewTranslation("合饭是什么东西")
+		tr2 := NewTranslation("合饭是啥玩意儿")
+		tr3 := NewTranslation("合饭是什么玩意儿")
+		result, err := tr.Translate()
+		result2, _ := tr2.Translate()
+		result3, _ := tr3.Translate()
+		checkEquation(err, nil, t)
+		checkEquation(result, "合饭是什么", t)
+		checkEquation(result2, "合饭是什么", t)
+		checkEquation(result3, "合饭是什么", t)
 	})
 }
 

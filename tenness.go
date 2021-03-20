@@ -3,6 +3,7 @@ package tennessgo
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -101,6 +102,22 @@ type Translate struct {
 	ReservedKeywords []string
 }
 
+func equals(a, b []string) bool {
+	// If one is nil, the other must also be nil.
+	if (a == nil) != (b == nil) {
+		return false
+	}
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
 // Translate.Translate() 是可供调用的方法，其返回翻译后的结果和error
 // 如果t.ToTranslate为空，则会返回"empty string to translate"的错误，否则
 // 返回的error为nil
@@ -108,7 +125,39 @@ func (t Translate) Translate() (string, error) {
 	if t.ToTranslate == "" {
 		return "", errors.New("empty string to translate")
 	}
-	result := t.ToTranslate
+
+	str_len := len(t.ToTranslate)
+	toTranslate := t.ToTranslate
+	// 过滤问号
+	switch {
+	case strings.HasSuffix(toTranslate, "？"):
+		toTranslate = toTranslate[:str_len-len("？")]
+	case strings.HasSuffix(toTranslate, "?"):
+		toTranslate = toTranslate[:str_len-1]
+	}
+
+	if toTranslate == "" {
+		return "", errors.New("translating a string only contains a question mark")
+	}
+
+	// 不翻译...是什么/什么意思之类的问句
+	switch {
+	case strings.HasSuffix(toTranslate, "是什么意思"), strings.HasSuffix(toTranslate, "是谁"):
+		return toTranslate, nil
+	default:
+		pattern := "(.*?是)(啥|什么)(玩意|东西)?(儿|呢|呀|啊)?"
+		reg := regexp.MustCompile(pattern)
+		if reg == nil {
+			fmt.Println("regexp err")
+			return "", errors.New("regexp err")
+		}
+		result := reg.FindStringSubmatch(toTranslate)
+		if result != nil {
+			return result[1] + "什么", nil
+		}
+	}
+
+	result := toTranslate
 	for index := range ReservedKeywords {
 		// 把所有出现在句子中的关键字替换为一种特定格式，使其不被翻译
 		// 稍后会把这些格式重新转换为关键字
@@ -122,17 +171,16 @@ func (t Translate) Translate() (string, error) {
 	// 键： 规范中文
 	// 值： 由不规范中文或常被打错的中文组成的切片
 	keywordsToTranslate := map[string][]string{
-		"什么":    {"啥", "啥子", "肾么", "甚么"},
-		"怎么":    {"咋"},
-		"炒饭":    {"抄饭", "吵饭"},
-		"充气":    {"冲气"},
-		"零售":    {"另售"},
-		"装潢":    {"装璜", "装黄"},
-		"盒饭":    {"合饭"},
-		"马可·波罗": {"马可波罗", "马可·菠萝", "马可·波萝", "马可 · 波罗"},
-		"菠萝":    {"波萝"},
-		"鸡蛋":    {"鸡但", "鸡旦"},
-		"停车":    {"仃车"},
+		"什么": {"啥", "啥子", "肾么", "甚么"},
+		"怎么": {"咋"},
+		"炒饭": {"抄饭", "吵饭"},
+		"充气": {"冲气"},
+		"零售": {"另售"},
+		"装潢": {"装璜", "装黄"},
+		"盒饭": {"合饭"},
+		"菠萝": {"波萝"},
+		"鸡蛋": {"鸡但", "鸡旦"},
+		"停车": {"仃车"},
 	}
 	for key, values := range keywordsToTranslate {
 		for _, informal := range values {
