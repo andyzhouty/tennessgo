@@ -102,22 +102,6 @@ type Translate struct {
 	ReservedKeywords []string
 }
 
-func equals(a, b []string) bool {
-	// If one is nil, the other must also be nil.
-	if (a == nil) != (b == nil) {
-		return false
-	}
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // Translate.Translate() 是可供调用的方法，其返回翻译后的结果和error
 // 如果t.ToTranslate为空，则会返回"empty string to translate"的错误，否则
 // 返回的error为nil
@@ -141,19 +125,18 @@ func (t Translate) Translate() (string, error) {
 	}
 
 	// 不翻译...是什么/什么意思之类的问句
-	switch {
-	case strings.HasSuffix(toTranslate, "是什么意思"), strings.HasSuffix(toTranslate, "是谁"):
-		return toTranslate, nil
-	default:
-		pattern := "(.*?是)(啥|什么)(玩意|东西)?(儿|呢|呀|啊)?"
-		reg := regexp.MustCompile(pattern)
-		if reg == nil {
-			fmt.Println("regexp err")
-			return "", errors.New("regexp err")
-		}
-		result := reg.FindStringSubmatch(toTranslate)
-		if result != nil {
-			return result[1] + "什么", nil
+	pattern := "(.*?是)(啥|什么)(玩意|东西|意思)?(儿|呢|呀|啊)?$"
+	reg := regexp.MustCompile(pattern)
+	if reg == nil {
+		fmt.Println("regexp err")
+		return "", errors.New("regexp err")
+	}
+	regResult := reg.FindStringSubmatch(toTranslate)
+	if regResult != nil {
+		if regResult[3] != "意思" {
+			return regResult[1] + "什么", nil
+		} else {
+			return regResult[1] + "什么意思", nil
 		}
 	}
 

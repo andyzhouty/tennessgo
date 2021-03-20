@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func checkEquation(got, want interface{}, t *testing.T) {
+func assertEqual(got, want interface{}, t *testing.T) {
 	if got != want {
 		t.Errorf("want %v got %v", want, got)
 	}
@@ -15,14 +15,14 @@ func TestTranslateWordOrEmpty(t *testing.T) {
 	t.Run("test translate word", func(t *testing.T) {
 		tr := NewTranslation("bilibili")
 		result, err := tr.Translate()
-		checkEquation(result, "bilibili", t)
-		checkEquation(err, nil, t)
+		assertEqual(result, "bilibili", t)
+		assertEqual(err, nil, t)
 	})
 	t.Run("test translate empty", func(t *testing.T) {
 		tr := NewTranslation("")
 		result, err := tr.Translate()
-		checkEquation(result, "", t)
-		checkEquation(err.Error(), "empty string to translate", t)
+		assertEqual(result, "", t)
+		assertEqual(err.Error(), "empty string to translate", t)
 	})
 }
 
@@ -30,32 +30,38 @@ func TestTranslateDeclarativeSentence(t *testing.T) {
 	t.Run("without reserved keywords", func(t *testing.T) {
 		tr := NewTranslation("给轮胎冲气")
 		result, err := tr.Translate()
-		checkEquation(result, "给轮胎充气", t)
-		checkEquation(err, nil, t)
+		assertEqual(result, "给轮胎充气", t)
+		assertEqual(err, nil, t)
 	})
 	t.Run("with reserved keywords", func(t *testing.T) {
-		tr := NewTranslation("发生甚么事了是啥意思")
+		tr := NewTranslation("发生甚么事了")
 		result, err := tr.Translate()
-		checkEquation(result, "发生甚么事了是什么意思", t)
-		checkEquation(err, nil, t)
+		assertEqual(result, "发生甚么事了", t)
+		assertEqual(err, nil, t)
 	})
 	t.Run("avoid translating specific format", func(t *testing.T) {
 		tr := NewTranslation("{k@#219}发生甚么事了是啥意思")
 		result, err := tr.Translate()
-		checkEquation(result, "{k@#219}发生甚么事了是什么意思", t)
-		checkEquation(err, nil, t)
+		assertEqual(result, "{k@#219}发生甚么事了是什么意思", t)
+		assertEqual(err, nil, t)
 	})
 }
 
 func TestWhatQuestions(t *testing.T) {
+	t.Run("toTranslate only contains a question mark", func(t *testing.T) {
+		tr := NewTranslation("？")
+		result, err := tr.Translate()
+		assertEqual(result, "", t)
+		assertEqual(err.Error(), "translating a string only contains a question mark", t)
+	})
 	t.Run("questions with question marks", func(t *testing.T) {
 		tr := NewTranslation("仃车是什么意思？")
 		tr2 := NewTranslation("仃车是什么意思?")
 		result, err := tr.Translate()
 		result2, _ := tr2.Translate()
-		checkEquation(result, "仃车是什么意思", t)
-		checkEquation(result2, "仃车是什么意思", t)
-		checkEquation(err, nil, t)
+		assertEqual(result, "仃车是什么意思", t)
+		assertEqual(result2, "仃车是什么意思", t)
+		assertEqual(err, nil, t)
 	})
 	t.Run("asking what-meaning questions", func(t *testing.T) {
 		tr := NewTranslation("合饭是什么东西")
@@ -64,10 +70,10 @@ func TestWhatQuestions(t *testing.T) {
 		result, err := tr.Translate()
 		result2, _ := tr2.Translate()
 		result3, _ := tr3.Translate()
-		checkEquation(err, nil, t)
-		checkEquation(result, "合饭是什么", t)
-		checkEquation(result2, "合饭是什么", t)
-		checkEquation(result3, "合饭是什么", t)
+		assertEqual(err, nil, t)
+		assertEqual(result, "合饭是什么", t)
+		assertEqual(result2, "合饭是什么", t)
+		assertEqual(result3, "合饭是什么", t)
 	})
 }
 
