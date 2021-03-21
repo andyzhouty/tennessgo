@@ -185,6 +185,9 @@ func (t Translate) Translate() (string, error) {
 		)
 	}
 
+	if questionMark {
+		result += "?"
+	}
 	return result, nil
 }
 
