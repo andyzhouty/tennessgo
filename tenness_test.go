@@ -59,8 +59,8 @@ func TestWhatQuestions(t *testing.T) {
 		tr2 := NewTranslation("仃车是什么意思?")
 		result, err := tr.Translate()
 		result2, _ := tr2.Translate()
-		assertEqual(result, "仃车是什么意思", t)
-		assertEqual(result2, "仃车是什么意思", t)
+		assertEqual(result, "仃车是什么意思?", t)
+		assertEqual(result2, "仃车是什么意思?", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("asking what-meaning questions", func(t *testing.T) {

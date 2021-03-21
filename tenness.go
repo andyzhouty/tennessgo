@@ -106,38 +106,46 @@ type Translate struct {
 // 如果t.ToTranslate为空，则会返回"empty string to translate"的错误，否则
 // 返回的error为nil
 func (t Translate) Translate() (string, error) {
-	if strings.TrimSpace(t.ToTranslate) == "" {
+	toTranslate := strings.TrimSpace(t.ToTranslate)
+	if toTranslate == "" {
 		return "", errors.New("empty string to translate")
 	}
 
 	str_len := len(t.ToTranslate)
-	toTranslate := t.ToTranslate
 	punctuationRegex := regexp.MustCompile(`^(？|\?)$`)
 	if punctuationRegex.FindString(toTranslate) != "" {
 		return "", errors.New("translating a string only contains a question mark")
 	}
 
+	var questionMark bool
 	// 删除结尾问号
 	switch {
 	case strings.HasSuffix(toTranslate, "？"):
 		toTranslate = toTranslate[:str_len-len("？")]
+		questionMark = true
 	case strings.HasSuffix(toTranslate, "?"):
 		toTranslate = toTranslate[:str_len-1]
+		questionMark = true
 	}
 
 	// 不翻译...是什么/什么意思之类的问句
+	var result string
 	pattern := `(.*?是)(啥|什么)(玩意|东西|意思|谁)?(儿|呢|呀|啊)?$`
 	regex := regexp.MustCompile(pattern)
 	regResult := regex.FindStringSubmatch(toTranslate)
 	if regResult != nil {
 		if regResult[3] != "意思" {
-			return regResult[1] + "什么", nil
+			result = regResult[1] + "什么"
 		} else {
-			return regResult[1] + "什么意思", nil
+			result = regResult[1] + "什么意思"
 		}
+		if questionMark {
+			result += "?"
+		}
+		return result, nil
 	}
 
-	result := toTranslate
+	result = toTranslate
 	for index := range ReservedKeywords {
 		// 把所有出现在句子中的关键字替换为一种特定格式，使其不被翻译
 		// 稍后会把这些格式重新转换为关键字
