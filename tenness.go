@@ -126,7 +126,7 @@ func (t Translate) Translate() (string, error) {
 	}
 
 	// 不翻译...是什么/什么意思之类的问句
-	pattern := `(.*?是)(啥|什么)(玩意|东西|意思)?(儿|呢|呀|啊)?$`
+	pattern := `(.*?是)(啥|什么)(玩意|东西|意思|谁)?(儿|呢|呀|啊)?$`
 	regex := regexp.MustCompile(pattern)
 	regResult := regex.FindStringSubmatch(toTranslate)
 	if regResult != nil {
@@ -161,6 +161,7 @@ func (t Translate) Translate() (string, error) {
 		"菠萝": {"波萝"},
 		"鸡蛋": {"鸡但", "鸡旦"},
 		"停车": {"仃车"},
+		"零":  {"〇"},
 	}
 	for key, values := range keywordsToTranslate {
 		for _, informal := range values {
