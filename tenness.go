@@ -130,14 +130,18 @@ func (t Translate) Translate() (string, error) {
 
 	// 不翻译...是什么/什么意思之类的问句
 	var result string
-	pattern := `(.*?是)(啥|什么)(玩意|东西|意思|谁)?(儿|呢|呀|啊)?$`
+	pattern := `(.*?是)((啥|什么)(玩意|东西|意思)?(儿|呢|呀|啊)?|谁)$`
 	regex := regexp.MustCompile(pattern)
-	regResult := regex.FindStringSubmatch(toTranslate)
-	if regResult != nil {
-		if regResult[3] != "意思" {
-			result = regResult[1] + "什么"
+	regexResult := regex.FindStringSubmatch(toTranslate)
+	if regexResult != nil {
+		if regexResult[2] == "谁" {
+			result = toTranslate
 		} else {
-			result = regResult[1] + "什么意思"
+			if regexResult[4] != "意思" {
+				result = regexResult[1] + "什么"
+			} else {
+				result = regexResult[1] + "什么意思"
+			}
 		}
 		if questionMark {
 			result += "?"

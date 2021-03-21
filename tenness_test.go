@@ -26,11 +26,11 @@ func TestTranslateWordOrEmpty(t *testing.T) {
 	})
 }
 
-func TestTranslateDeclarativeSentence(t *testing.T) {
+func TestTranslateSentencesOrHowQuesions(t *testing.T) {
 	t.Run("without reserved keywords", func(t *testing.T) {
-		tr := NewTranslation("给轮胎冲气")
+		tr := NewTranslation("咋给轮胎冲气?")
 		result, err := tr.Translate()
-		assertEqual(result, "给轮胎充气", t)
+		assertEqual(result, "怎么给轮胎充气?", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("with reserved keywords", func(t *testing.T) {
@@ -47,7 +47,7 @@ func TestTranslateDeclarativeSentence(t *testing.T) {
 	})
 }
 
-func TestWhatQuestions(t *testing.T) {
+func TestWhatWhoQuestions(t *testing.T) {
 	t.Run("toTranslate only contains a question mark", func(t *testing.T) {
 		tr := NewTranslation("？")
 		result, err := tr.Translate()
@@ -74,6 +74,12 @@ func TestWhatQuestions(t *testing.T) {
 		assertEqual(result, "合饭是什么", t)
 		assertEqual(result2, "合饭是什么", t)
 		assertEqual(result3, "合饭是什么", t)
+	})
+	t.Run("asking who-questions", func(t *testing.T) {
+		tr := NewTranslation("合饭是谁？") // 想不出来测试用例了...
+		result, err := tr.Translate()
+		assertEqual(err, nil, t)
+		assertEqual(result, "合饭是谁?", t)
 	})
 }
 
