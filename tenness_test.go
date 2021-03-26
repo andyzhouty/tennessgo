@@ -13,12 +13,14 @@ func assertEqual(got, want interface{}, t *testing.T) {
 
 func TestTranslateWordOrEmpty(t *testing.T) {
 	t.Run("test translate word", func(t *testing.T) {
+		t.Parallel()
 		tr := NewTranslation("bilibili")
 		result, err := tr.Translate()
 		assertEqual(result, "bilibili", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("test translate empty", func(t *testing.T) {
+		t.Parallel()
 		tr := NewTranslation("")
 		result, err := tr.Translate()
 		assertEqual(result, "", t)
@@ -28,33 +30,49 @@ func TestTranslateWordOrEmpty(t *testing.T) {
 
 func TestTranslateSentencesOrHowQuesions(t *testing.T) {
 	t.Run("without reserved keywords", func(t *testing.T) {
+		t.Parallel()
 		tr := NewTranslation("咋给轮胎冲气?")
 		result, err := tr.Translate()
 		assertEqual(result, "怎么给轮胎充气?", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("with reserved keywords", func(t *testing.T) {
+		t.Parallel()
 		tr := NewTranslation("发生甚么事了")
 		result, err := tr.Translate()
 		assertEqual(result, "发生甚么事了", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("avoid translating specific format", func(t *testing.T) {
+		t.Parallel()
+
 		tr := NewTranslation("{k@#219}发生甚么事了是啥意思")
 		result, err := tr.Translate()
 		assertEqual(result, "{k@#219}发生甚么事了是什么意思", t)
+		assertEqual(err, nil, t)
+	})
+	t.Run("avoid translating conjunctions", func(t *testing.T) {
+		t.Parallel()
+
+		tr := NewTranslation("我有一只鸡但他有一只鸭")
+		result, err := tr.Translate()
+		assertEqual(result, "我有一只鸡但他有一只鸭", t)
 		assertEqual(err, nil, t)
 	})
 }
 
 func TestWhatWhoQuestions(t *testing.T) {
 	t.Run("toTranslate only contains a question mark", func(t *testing.T) {
+		t.Parallel()
+
 		tr := NewTranslation("？")
 		result, err := tr.Translate()
 		assertEqual(result, "", t)
 		assertEqual(err.Error(), "translating a string only contains a question mark", t)
 	})
 	t.Run("questions with question marks", func(t *testing.T) {
+		t.Parallel()
+
 		tr := NewTranslation("仃车是什么意思？")
 		tr2 := NewTranslation("仃车是什么意思?")
 		result, err := tr.Translate()
@@ -64,6 +82,8 @@ func TestWhatWhoQuestions(t *testing.T) {
 		assertEqual(err, nil, t)
 	})
 	t.Run("asking what-meaning questions", func(t *testing.T) {
+		t.Parallel()
+
 		tr := NewTranslation("合饭是什么东西")
 		tr2 := NewTranslation("合饭是啥玩意儿")
 		tr3 := NewTranslation("合饭是什么玩意儿")
@@ -76,6 +96,8 @@ func TestWhatWhoQuestions(t *testing.T) {
 		assertEqual(result3, "合饭是什么", t)
 	})
 	t.Run("asking who-questions", func(t *testing.T) {
+		t.Parallel()
+
 		tr := NewTranslation("合饭是谁？") // 想不出来测试用例了...
 		result, err := tr.Translate()
 		assertEqual(err, nil, t)
