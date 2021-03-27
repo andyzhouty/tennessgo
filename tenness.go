@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/yanyiwu/gojieba"
 )
 
 // ReservedKeywords包含了tennessgo中的所有保留关键字。
@@ -161,11 +159,6 @@ func (t Translate) Translate() (string, error) {
 		)
 	}
 
-	jieba := gojieba.NewJieba()
-	defer jieba.Free()
-
-	words := jieba.Cut(result, true)
-
 	// 需要转换的关键字映射
 	// 键： 规范中文
 	// 值： 由不规范中文或常被打错的中文组成的切片
@@ -178,20 +171,15 @@ func (t Translate) Translate() (string, error) {
 		"装潢": {"装璜", "装黄"},
 		"盒饭": {"合饭"},
 		"菠萝": {"波萝"},
-		"鸡蛋": {"鸡但", "鸡旦"},
+		"鸡蛋": {"鸡旦"},
 		"停车": {"仃车"},
 		"零":  {"〇"},
 	}
 	for formal, values := range keywordsToTranslate {
 		for _, informal := range values {
-			for index := range words {
-				if words[index] == informal {
-					words[index] = formal
-				}
-			}
+			result = strings.Replace(result, informal, formal, -1)
 		}
 	}
-	result = strings.Join(words, "")
 
 	for index := range ReservedKeywords {
 		format := fmt.Sprintf("{k@#%d}", index)
