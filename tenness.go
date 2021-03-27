@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/wangbin/jiebago"
 )
+
+var seg jiebago.Segmenter
 
 // ReservedKeywords包含了tennessgo中的所有保留关键字。
 var ReservedKeywords = []string{
@@ -94,6 +98,10 @@ var ReservedKeywords = []string{
 	"橘里橘气", "紫气东来", "磕到了",
 }
 
+func init() {
+	seg.LoadDictionary("dict.txt")
+}
+
 // Translate是一个翻译模型，有Translate()方法，用于翻译
 // 属性ToTranslate是要翻译的字符串
 // 属性ReservedKeywords则是可自定义的保留关键字列表，不过一般推荐使用自带的ReservedKeywords
@@ -159,6 +167,11 @@ func (t Translate) Translate() (string, error) {
 		)
 	}
 
+	var words []string
+	wordsChan := seg.Cut(result, true)
+	for w := range wordsChan {
+		words = append(words, w)
+	}
 	// 需要转换的关键字映射
 	// 键： 规范中文
 	// 值： 由不规范中文或常被打错的中文组成的切片
@@ -177,9 +190,14 @@ func (t Translate) Translate() (string, error) {
 	}
 	for formal, values := range keywordsToTranslate {
 		for _, informal := range values {
-			result = strings.Replace(result, informal, formal, -1)
+			for wordIndex := range words {
+				if words[wordIndex] == informal {
+					words[wordIndex] = formal
+				}
+			}
 		}
 	}
+	result = strings.Join(words, "")
 
 	for index := range ReservedKeywords {
 		format := fmt.Sprintf("{k@#%d}", index)
