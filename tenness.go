@@ -98,8 +98,28 @@ var ReservedKeywords = []string{
 	"橘里橘气", "紫气东来", "磕到了",
 }
 
+// 需要转换的关键字映射
+// 键： 规范中文
+// 值： 由不规范中文或常被打错的中文组成的切片
+var keywordsToTranslate = map[string][]string{
+	"什么": {"啥", "啥子", "肾么", "甚么"},
+	"怎么": {"咋"},
+	"炒饭": {"抄饭", "吵饭"},
+	"充气": {"冲气"},
+	"零售": {"另售"},
+	"装潢": {"装璜", "装黄"},
+	"盒饭": {"合饭"},
+	"菠萝": {"波萝"},
+	"鸡蛋": {"鸡旦"},
+	"停车": {"仃车"},
+	"零":  {"〇"},
+	"秘籍": {"秘笈"},
+	"快餐": {"快歺"},
+}
+
 func init() {
 	seg.LoadDictionary("dict.txt")
+	seg.AddWord("冲气", 1)
 }
 
 // Translate是一个翻译模型，有Translate()方法，用于翻译
@@ -172,22 +192,6 @@ func (t Translate) Translate() (string, error) {
 	for w := range wordsChan {
 		words = append(words, w)
 	}
-	// 需要转换的关键字映射
-	// 键： 规范中文
-	// 值： 由不规范中文或常被打错的中文组成的切片
-	keywordsToTranslate := map[string][]string{
-		"什么": {"啥", "啥子", "肾么", "甚么"},
-		"怎么": {"咋"},
-		"炒饭": {"抄饭", "吵饭"},
-		"充气": {"冲气"},
-		"零售": {"另售"},
-		"装潢": {"装璜", "装黄"},
-		"盒饭": {"合饭"},
-		"菠萝": {"波萝"},
-		"鸡蛋": {"鸡旦"},
-		"停车": {"仃车"},
-		"零":  {"〇"},
-	}
 	for formal, values := range keywordsToTranslate {
 		for _, informal := range values {
 			for wordIndex := range words {
@@ -206,7 +210,6 @@ func (t Translate) Translate() (string, error) {
 			strings.Count(result, format)-strings.Count(t.ToTranslate, format),
 		)
 	}
-
 	if questionMark {
 		result += "?"
 	}

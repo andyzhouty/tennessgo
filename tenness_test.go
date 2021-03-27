@@ -51,12 +51,22 @@ func TestTranslateSentencesOrHowQuesions(t *testing.T) {
 		assertEqual(result, "{k@#219}发生甚么事了是什么意思", t)
 		assertEqual(err, nil, t)
 	})
-	t.Run("avoid translating conjunctions", func(t *testing.T) {
+	t.Run("deal with a **special** mistake", func(t *testing.T) {
 		t.Parallel()
 
-		tr := NewTranslation("我有一只鸡但他有一只鸭")
+		tr := NewTranslation("他俩在吵饭做的怎么样了")
 		result, err := tr.Translate()
-		assertEqual(result, "我有一只鸡但他有一只鸭", t)
+		assertEqual(result, "他俩在吵饭做的怎么样了", t)
+		assertEqual(err, nil, t)
+
+		tr = NewTranslation("他俩在吵饭")
+		result, err = tr.Translate()
+		assertEqual(result, "他俩在炒饭", t)
+		assertEqual(err, nil, t)
+
+		tr = NewTranslation("他俩做的吵饭怎么样了")
+		result, err = tr.Translate()
+		assertEqual(result, "他俩做的炒饭怎么样了", t)
 		assertEqual(err, nil, t)
 	})
 }
