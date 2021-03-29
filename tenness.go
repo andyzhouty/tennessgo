@@ -145,15 +145,12 @@ func (t Translate) Translate() (string, error) {
 		return "", errors.New("translating a string only contains a question mark")
 	}
 
-	var questionMark bool
 	// 删除结尾问号
 	switch {
 	case strings.HasSuffix(toTranslate, "？"):
 		toTranslate = toTranslate[:str_len-len("？")]
-		questionMark = true
 	case strings.HasSuffix(toTranslate, "?"):
 		toTranslate = toTranslate[:str_len-1]
-		questionMark = true
 	}
 
 	// 不翻译...是什么/什么意思之类的问句
@@ -170,9 +167,6 @@ func (t Translate) Translate() (string, error) {
 			} else {
 				result = regexResult[1] + "什么意思"
 			}
-		}
-		if questionMark {
-			result += "?"
 		}
 		return result, nil
 	}
@@ -209,9 +203,6 @@ func (t Translate) Translate() (string, error) {
 			result, format, ReservedKeywords[index],
 			strings.Count(result, format)-strings.Count(t.ToTranslate, format),
 		)
-	}
-	if questionMark {
-		result += "?"
 	}
 	return result, nil
 }

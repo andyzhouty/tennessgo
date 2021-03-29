@@ -33,7 +33,7 @@ func TestTranslateSentencesOrHowQuesions(t *testing.T) {
 		t.Parallel()
 		tr := NewTranslation("咋给轮胎冲气?")
 		result, err := tr.Translate()
-		assertEqual(result, "怎么给轮胎充气?", t)
+		assertEqual(result, "怎么给轮胎充气", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("with reserved keywords", func(t *testing.T) {
@@ -87,8 +87,8 @@ func TestWhatWhoQuestions(t *testing.T) {
 		tr2 := NewTranslation("仃车是什么意思?")
 		result, err := tr.Translate()
 		result2, _ := tr2.Translate()
-		assertEqual(result, "仃车是什么意思?", t)
-		assertEqual(result2, "仃车是什么意思?", t)
+		assertEqual(result, "仃车是什么意思", t)
+		assertEqual(result2, "仃车是什么意思", t)
 		assertEqual(err, nil, t)
 	})
 	t.Run("asking what-meaning questions", func(t *testing.T) {
@@ -111,7 +111,7 @@ func TestWhatWhoQuestions(t *testing.T) {
 		tr := NewTranslation("合饭是谁？") // 想不出来测试用例了...
 		result, err := tr.Translate()
 		assertEqual(err, nil, t)
-		assertEqual(result, "合饭是谁?", t)
+		assertEqual(result, "合饭是谁", t)
 	})
 }
 
